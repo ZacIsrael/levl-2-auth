@@ -4,6 +4,12 @@ import bodyParser from "body-parser";
 // postgreSQL module
 import pg from "pg";
 
+// used to securely hash passwords; automatically generates a random salt and hashes the password.
+import bcrypt from "bcrypt";
+
+// used for salting passwords
+const saltRounds = 10;
+
 // allows us to access our passwords and other sensitive variables from the .env file
 import dotenv from "dotenv";
 dotenv.config();
@@ -29,7 +35,6 @@ const db = new pg.Client({
 });
 // connect to the postgreSQL server
 db.connect();
-
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
@@ -58,12 +63,19 @@ app.post("/register", async (req, res) => {
     if (checkResult.rows.length > 0) {
       res.send("Email already exists. Try logging in.");
     } else {
-      const result = await db.query(
-        "INSERT INTO users (email, password) VALUES ($1, $2)",
-        [email, password]
-      );
-      console.log(result);
-      res.render("secrets.ejs");
+      // hash password
+      bcrypt.hash(password, saltRounds, async (err, hash) => {
+        if (err) {
+          console.error(`(/register) error hashing password: `, err.stack);
+        } else {
+          const result = await db.query(
+            "INSERT INTO users (email, password) VALUES ($1, $2)",
+            [email, hash]
+          );
+          console.log(result);
+          res.render("secrets.ejs");
+        }
+      });
     }
   } catch (err) {
     console.log(err);
