@@ -34,10 +34,10 @@ app.use(express.static("public"));
 
 // Initialize a new PostgreSQL client with credentials retrieved from environment variables
 const db = new pg.Client({
-  user: process.env.PG_USERNAME, // your PostgreSQL username (stored in .env)
+  user: process.env.PG_USERNAME, // PostgreSQL username (stored in .env)
   host: "localhost", // database server address (localhost since it runs locally)
   database: "authentication-practice", // name of the database to connect to
-  password: process.env.PG_PASSWORD, // your PostgreSQL password (stored in .env)
+  password: process.env.PG_PASSWORD, // PostgreSQL password (stored in .env)
   port: 5432, // default PostgreSQL port
 });
 
